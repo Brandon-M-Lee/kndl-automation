@@ -1,7 +1,9 @@
 # kndl-automation
 
 ## 큰들 아침 기상곡 자동화 시스템
+컴퓨터에 파이썬 설치되어있는지 꼭 확인
 
+필요한 라이브러리를 설치하기 위해 아래 명령 실행
     pip install -r requirements.txt
 
 ### How
