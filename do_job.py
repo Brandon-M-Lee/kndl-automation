@@ -17,6 +17,4 @@ def job():
             length = 60*minuite+second
             time.sleep(length+1)
         else:
-            
-
-job()
+            pass
