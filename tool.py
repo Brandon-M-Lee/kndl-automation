@@ -44,7 +44,7 @@ def get_links():
         if link.get_attribute('href')[8:13] == 'youtu':
             links.append(link.get_attribute('href'))
 
-    return links[:3]
+    return links
 
 if __name__ == '__main__':
     print(get_links())
