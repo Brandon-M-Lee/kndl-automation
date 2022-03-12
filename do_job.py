@@ -10,7 +10,7 @@ schedule.every().friday.at("06:18").do(job)
 schedule.every().saturday.at("06:18").do(job)
 schedule.every().sunday.at("07:50").do(job)
 
-
-while True:
-    schedule.run_pending()
-    time.sleep(1)
+if __name__ == '__main__':
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
