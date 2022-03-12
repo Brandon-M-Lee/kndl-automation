@@ -1,3 +1,4 @@
+from lib2to3.pgen2 import driver
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -48,8 +49,8 @@ def get_request_links():
     return links
 
 def get_top_links():
-    top_links = list()
     driver = make_driver()
+    top_links = list()
     url = 'https://www.youtube.com/playlist?list=PL4fGSI1pDJn6jXS_Tv_N9B8Z0HTRVJE0m'
     driver.get(url)
     time.sleep(1)
@@ -57,30 +58,51 @@ def get_top_links():
         top_links.append(link.get_attribute('href'))
     return top_links
 
+def is_ad(driver):
+    return bool(driver.find_elements(By.CLASS_NAME, 'ytp-ad-text'))
+
+def skip_ad(driver):
+    while True:
+        if not is_ad(driver):
+            break
+        if driver.find_elements(By.CLASS_NAME, 'ytp-ad-skip-button ytp-button'):
+            driver.find_element(By.CLASS_NAME, 'ytp-ad-skip-button ytp-button').click()
+            break
+        time.sleep(0.5)
+
+def control_mute(driver):
+    volume_info = driver.find_element(By.CLASS_NAME, 'ytp-volume-panel').get_attribute('aria-valuetext')
+    if is_ad(driver):
+        if volume_info[-4:] != '음소거됨':
+            driver.find_element(By.CLASS_NAME, 'ytp-volume-area').click()
+    else:
+        if volume_info[-4:] == '음소거됨':
+            driver.find_element(By.CLASS_NAME, 'ytp-volume-area').click()
+
 def job():
     driver = make_driver()
-    links = get_request_links()
+    '''links = get_request_links()
     if len(links) >= 3:
         links_to_play = random.sample(links, 3)
     else:
-        links += random.sample(get_top_links(), 3-len(links))
+        links += random.sample(get_top_links(), 3-len(links))'''
+    links_to_play = random.sample(get_top_links(), 3)
     for link in links_to_play:
         driver.get(link)
-        if not driver.find_element(By.CLASS_NAME, 'ytp-ad-text'): # 광고 없을 떄
+        if is_ad(driver): # 유튜브 광고는 최대 두개
+            control_mute(driver)
+            skip_ad(driver)
+            time.sleep(0.5)
+        if is_ad(driver):
+            skip_ad(driver)
+            time.sleep(0.5)
+        if not is_ad(driver):
+            control_mute(driver)
             time_duration = driver.find_element(By.CLASS_NAME, 'ytp-time-duration').text
             minuite, second = map(int, time_duration.split(':'))
             length = 60*minuite+second
-            time.sleep(length+1)
-        else:
-            while True:
-                if driver.find_elements(By.ID, 'ad-text:6'):
-                    ad_skip_btn = driver.find_element(By.ID, 'ad-text:6')
-                    ad_skip_btn.click()
-                    time_duration = driver.find_element(By.CLASS_NAME, 'ytp-time-duration').text
-                    minuite, second = map(int, time_duration.split(':'))
-                    length = 60*minuite+second
-                    time.sleep(length+1)
-                time.sleep(1)
+            time.sleep(length)
 
 if __name__ == '__main__':
-    print(get_top_links())
+    job()
+    
