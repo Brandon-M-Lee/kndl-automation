@@ -104,7 +104,7 @@ def job():
     if len(links) >= 3:
         links_to_play = random.sample(links, 3)
     else:
-        links += random.sample(get_top_links(), 3-len(links))
+        links_to_play = links + random.sample(get_top_links(), 3-len(links))
     for link in links_to_play:
         play_music(driver, link)
 
