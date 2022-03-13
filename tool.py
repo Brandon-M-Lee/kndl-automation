@@ -1,10 +1,10 @@
-from lib2to3.pgen2 import driver
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
 import pyperclip
 import random
+import pyautogui
 
 def make_driver():
     chrome_path = "chromedriver.exe"
@@ -65,43 +65,48 @@ def skip_ad(driver):
     while True:
         if not is_ad(driver):
             break
-        if driver.find_elements(By.CLASS_NAME, 'ytp-ad-skip-button ytp-button'):
-            driver.find_element(By.CLASS_NAME, 'ytp-ad-skip-button ytp-button').click()
-            break
+        if driver.find_elements(By.CLASS_NAME, 'ytp-ad-skip-button-container'):
+            ad_skip_btn = driver.find_element(By.CLASS_NAME, 'ytp-ad-skip-button-container')
+            if ad_skip_btn.get_attribute('style') != 'display: none;':
+                ad_skip_btn.click()
+                break
         time.sleep(0.5)
 
 def control_mute(driver):
     volume_info = driver.find_element(By.CLASS_NAME, 'ytp-volume-panel').get_attribute('aria-valuetext')
     if is_ad(driver):
         if volume_info[-4:] != '음소거됨':
-            driver.find_element(By.CLASS_NAME, 'ytp-volume-area').click()
+            pyautogui.press('m')
+
     else:
         if volume_info[-4:] == '음소거됨':
-            driver.find_element(By.CLASS_NAME, 'ytp-volume-area').click()
+            pyautogui.press('m')
+
+def play_music(driver, url):
+    driver.get(url)
+    if is_ad(driver): # 유튜브 광고는 최대 두개
+        control_mute(driver)
+        skip_ad(driver)
+        time.sleep(0.5)
+    if is_ad(driver):
+        skip_ad(driver)
+        time.sleep(0.5)
+    if not is_ad(driver):
+        control_mute(driver)
+        time_duration = driver.find_element(By.CLASS_NAME, 'ytp-time-duration').text
+        minuite, second = map(int, time_duration.split(':'))
+        length = 60*minuite+second
+        time.sleep(length)
 
 def job():
     driver = make_driver()
-    '''links = get_request_links()
+    links = get_request_links()
     if len(links) >= 3:
         links_to_play = random.sample(links, 3)
     else:
-        links += random.sample(get_top_links(), 3-len(links))'''
-    links_to_play = random.sample(get_top_links(), 3)
+        links += random.sample(get_top_links(), 3-len(links))
     for link in links_to_play:
-        driver.get(link)
-        if is_ad(driver): # 유튜브 광고는 최대 두개
-            control_mute(driver)
-            skip_ad(driver)
-            time.sleep(0.5)
-        if is_ad(driver):
-            skip_ad(driver)
-            time.sleep(0.5)
-        if not is_ad(driver):
-            control_mute(driver)
-            time_duration = driver.find_element(By.CLASS_NAME, 'ytp-time-duration').text
-            minuite, second = map(int, time_duration.split(':'))
-            length = 60*minuite+second
-            time.sleep(length)
+        play_music(driver, link)
 
 if __name__ == '__main__':
     job()
