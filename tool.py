@@ -105,6 +105,7 @@ def job():
         links_to_play = random.sample(links, 3)
     else:
         links_to_play = links + random.sample(get_top_links(), 3-len(links))
+    links_to_play += ['https://www.youtube.com/watch?v=a72NCO0OFXA'] # 마지막엔 국민 체조
     for link in links_to_play:
         play_music(driver, link)
 
