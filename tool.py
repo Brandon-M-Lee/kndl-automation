@@ -1,3 +1,4 @@
+from matplotlib.pyplot import get
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -7,7 +8,7 @@ import random
 import pyautogui
 
 def make_driver():
-    chrome_path = "chromedriver.exe"
+    chrome_path = "chromedriver.exe" #크롬 드라이버는 크롬 버전 확인하고 바꾸기
     driver = webdriver.Chrome(chrome_path)
     return driver
 
@@ -98,14 +99,27 @@ def play_music(driver, url):
         length = 60*minuite+second
         time.sleep(length)
 
-def job():
-    driver = make_driver()
+def make_links_to_play_random():
     links = get_request_links()
     if len(links) >= 3:
         links_to_play = random.sample(links, 3)
     else:
         links_to_play = links + random.sample(get_top_links(), 3-len(links))
     links_to_play += ['https://www.youtube.com/watch?v=a72NCO0OFXA'] # 마지막엔 국민 체조
+    return links_to_play
+
+def make_links_to_play_top():
+    links = get_request_links()
+    if len(links) >= 3:
+        links_to_play = random.sample(links, 3)
+    else:
+        links_to_play = links + random.sample(get_top_links(), 3-len(links))
+    links_to_play = list(reversed(links_to_play))
+
+def job():
+    driver = make_driver()
+    # links_to_play = make_links_to_play_random()
+    links_to_play = make_links_to_play_top()
     for link in links_to_play:
         play_music(driver, link)
 
