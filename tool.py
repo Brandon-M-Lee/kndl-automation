@@ -42,6 +42,7 @@ def get_request_links():
     time.sleep(3)
 
     driver.get(url_requests)
+    time.sleep(0.5)
     links = list()
     for link in driver.find_elements(By.TAG_NAME, 'a'):
         if link.get_attribute('href')[8:13] == 'youtu':
@@ -110,11 +111,14 @@ def make_links_to_play_random():
 
 def make_links_to_play_top():
     links = get_request_links()
+    print(links)
     if len(links) >= 3:
         links_to_play = random.sample(links, 3)
     else:
         links_to_play = links + random.sample(get_top_links(), 3-len(links))
     links_to_play = list(reversed(links_to_play))
+    print(links_to_play)
+    return links_to_play
 
 def job():
     driver = make_driver()
